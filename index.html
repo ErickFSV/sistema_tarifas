@@ -1,0 +1,564 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <title>Simulador de Frete - Transcourier</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" href="imgs/logo.png" type="image/png">
+  <!-- Ícones do Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #0170ee;
+      --primary-light: #e7f3ff;
+      --secondary: #fcb033;
+      --secondary-light: #fff5e6;
+      --bg-light: #f9f9f9;
+      --text-dark: #333;
+      --text-light: #666;
+      --border-radius: 12px;
+      --box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body { 
+      font-family: 'Segoe UI', system-ui, Arial, sans-serif; 
+      margin: 0; 
+      background: var(--bg-light);
+      color: var(--text-dark);
+      line-height: 1.6;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      padding: 16px 5%;
+      background: var(--primary);
+      color: white;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+    }
+
+    header img {
+      height: 40px;
+      margin-right: 12px;
+    }
+
+    header h1 {
+      font-size: 20px;
+      margin: 0;
+      font-weight: 600;
+    }
+
+    main {
+      padding: 24px 5%;
+      max-width: 1400px;
+      margin: auto;
+    }
+
+    h2 {
+      color: var(--primary);
+      margin-bottom: 20px;
+      font-weight: 600;
+      font-size: 1.5rem;
+    }
+
+    .banner {
+      background: var(--primary-light);
+      color: #034694;
+      border-left: 4px solid var(--primary);
+      padding: 16px;
+      border-radius: var(--border-radius);
+      margin-bottom: 28px;
+      font-size: 14px;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .banner i {
+      color: var(--primary);
+      margin-top: 2px;
+    }
+
+    .form-section {
+      background: white;
+      padding: 24px;
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+      margin-bottom: 28px;
+    }
+
+    .form-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      margin-bottom: 16px;
+    }
+
+    .field-container {
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .field-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+      font-weight: 600; /* Fonte mais forte */
+      color: var(--text-dark);
+      font-size: 15px; /* Título aumentado */
+    }
+
+    .field-title i {
+      color: var(--primary);
+      width: 16px;
+      font-size: 16px; /* Ícone ligeiramente maior */
+    }
+
+    .field { 
+      position: relative; 
+    }
+
+    .field select, .field input { 
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid #ddd; 
+      border-radius: 8px;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+
+    .field select:focus, .field input:focus { 
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(1, 112, 238, 0.1);
+    }
+
+    .field input::placeholder {
+      color: #aaa;
+    }
+
+    .button-container {
+      display: flex;
+      justify-content: center;
+      margin-top: 16px;
+    }
+
+    button { 
+      padding: 14px 28px; 
+      background: var(--primary); 
+      color: white; 
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 15px;
+    }
+
+    button:hover { 
+      background: var(--secondary);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    .results-section {
+      background: white;
+      padding: 24px;
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+      overflow: hidden;
+    }
+
+    table { 
+      width:100%; 
+      border-collapse: collapse; 
+      margin-top: 20px; 
+      border-radius: var(--border-radius);
+      overflow: hidden;
+    }
+
+    th, td { 
+      border: 1px solid #eee; 
+      padding: 14px; 
+      font-size: 14px; 
+      text-align: left; 
+    }
+
+    th { 
+      background: var(--primary); 
+      color: white; 
+      font-weight: 600;
+      position: sticky;
+      top: 0;
+    }
+
+    tr:nth-child(even) {
+      background-color: #f8fafc;
+    }
+
+    td.right { 
+      text-align: right; 
+    }
+
+    /* Balão do valor simulado */
+    .valor {
+      font-weight: bold;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 20px;
+      display: inline-block;
+      min-width: 120px;
+      text-align: center;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    /* Linha de destaque para o menor valor */
+    tr.melhor {
+      background: var(--secondary-light) !important;
+      border-left: 4px solid var(--secondary);
+    }
+    
+    tr.melhor td:first-child {
+      font-weight: 600;
+    }
+
+    /* Formatação de números - Fonte mais forte */
+    .number-cell {
+      font-family: 'Segoe UI', sans-serif;
+      text-align: right;
+      font-weight: 600; /* Fonte mais forte para números */
+    }
+    
+    .currency {
+      font-family: 'Segoe UI', sans-serif;
+      font-weight: 600;
+    }
+
+    /* Responsividade */
+    @media (max-width: 1024px) {
+      .form-row {
+        gap: 15px;
+      }
+      
+      .field-container {
+        min-width: calc(50% - 15px);
+      }
+    }
+
+    @media (max-width: 768px) {
+      main {
+        padding: 16px;
+      }
+      
+      .field-container {
+        min-width: 100%;
+      }
+      
+      th, td {
+        padding: 10px 8px;
+        font-size: 13px;
+      }
+      
+      table {
+        display: block;
+        overflow-x: auto;
+      }
+      
+      .field-title {
+        font-size: 14px;
+      }
+    }
+
+    /* Loading state */
+    .loading {
+      display: none;
+      text-align: center;
+      padding: 20px;
+    }
+    
+    .loading i {
+      color: var(--primary);
+      font-size: 24px;
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="imgs/logo.png" alt="Logo Transcourier">
+    <h1>Simulador de Frete</h1>
+  </header>
+
+  <main>
+    <div class="banner">
+      <i class="fa-solid fa-circle-info"></i>
+      <div>⚠️ Não embarcar medicamento na LATAM</div>
+      <div>⚠️ Não embarcar perecível na GOL</div>
+      <div>⚠️ Evitar GOL em origem FLN pois estão embarcando apenas no urgente</div>
+    </div>
+
+    <div class="form-section">
+      <h2>Calcule seu Frete</h2>
+
+      <div class="form-row">
+        <div class="field-container">
+          <div class="field-title">
+            <i class="fa-solid fa-location-dot"></i>
+            <span>Origem</span>
+          </div>
+          <div class="field">
+            <select id="origem"></select>
+          </div>
+        </div>
+        
+        <div class="field-container">
+          <div class="field-title">
+            <i class="fa-solid fa-map-pin"></i>
+            <span>Destino</span>
+          </div>
+          <div class="field">
+            <select id="destino"></select>
+          </div>
+        </div>
+        
+        <div class="field-container">
+          <div class="field-title">
+            <i class="fa-solid fa-file-invoice-dollar"></i>
+            <span>Valor da Nota Fiscal</span>
+          </div>
+          <div class="field">
+            <input type="number" id="nota" step="0.01" placeholder="Ex: 1500.00">
+          </div>
+        </div>
+        
+        <div class="field-container">
+          <div class="field-title">
+            <i class="fa-solid fa-weight-hanging"></i>
+            <span>Peso da Encomenda (kg)</span>
+          </div>
+          <div class="field">
+            <input type="number" id="peso" step="0.01" placeholder="Ex: 2.5">
+          </div>
+        </div>
+      </div>
+
+      <div class="button-container">
+        <button id="btnCalc">
+          <i class="fa-solid fa-calculator"></i>
+          Calcular Frete
+        </button>
+      </div>
+    </div>
+
+    <div class="loading" id="loading">
+      <i class="fa-solid fa-spinner"></i>
+      <p>Calculando melhores opções...</p>
+    </div>
+
+    <div class="results-section">
+      <table id="tabela" style="display:none">
+        <thead>
+          <tr>
+            <th>CIA</th>
+            <th>Serviço</th>
+            <th>Peso Corte</th>
+            <th>Peso Mín.</th>
+            <th>Peso Final</th>
+            <th>Tarifa Mín.</th>
+            <th>Tarifa Exced.</th>
+            <th class="right">Valor Simulado (R$)</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </main>
+
+<script>
+const API = "http://localhost:3000";
+
+// Função para formatar números no padrão brasileiro
+function formatarNumero(numero, decimais = 2) {
+  return new Intl.NumberFormat('pt-BR', {
+    minimumFractionDigits: decimais,
+    maximumFractionDigits: decimais
+  }).format(numero);
+}
+
+(async function carregarOpcoes(){
+  const res = await fetch(`${API}/opcoes`);
+  const { origens, destinos } = await res.json();
+  document.getElementById("origem").innerHTML = origens.map(s => `<option value="${s}">${s}</option>`).join("");
+  document.getElementById("destino").innerHTML = destinos.map(s => `<option value="${s}">${s}</option>`).join("");
+})();
+
+function gris(nota, cia, siglaDestino) {
+  const dest = (siglaDestino || "").toUpperCase();
+  let calculo;
+  if (dest === "CAC" || dest === "IGU")      calculo = 0.003  * nota;
+  else if (dest === "GYM" || dest === "CGR") calculo = 0.012  * nota;
+  else if (dest === "MAO")                   calculo = 0.023  * nota;
+  else if (dest === "BVB")                   calculo = 0.063  * nota;
+  else                                       calculo = 0.0007 * nota;
+
+  const ciaU = (cia || "").toUpperCase();
+  if (ciaU === "JEM") return Math.max(3.7, calculo);
+  if (ciaU === "SOL") return 0.0007 * nota;
+  return 0;
+}
+
+function valorSimulado(row, peso, nota) {
+  const {
+    PESO_MINIMO, PESO_FINAL, TARIFA_MINIMA, PESO_CORTE, TARIFA_EXCEDENTE,
+    CIA, SERVICO, "SIGLA DESTINO": SIGLA_DESTINO
+  } = row;
+
+  const ciaU = (CIA || "").toUpperCase();
+  const servU = (SERVICO || "").toUpperCase();
+
+  const g = gris(nota, CIA, SIGLA_DESTINO);
+
+  const Peso = Number(peso);
+  const PesoMinimo = Number(PESO_MINIMO);
+  const PesoFinal  = Number(PESO_FINAL);
+  const TarifaMin  = Number(TARIFA_MINIMA);
+  const PesoCorte  = Number(PESO_CORTE);
+  const TarifaExc  = Number(TARIFA_EXCEDENTE);
+
+  const MaxTarifaMinima = ((ciaU === "JEM" || ciaU === "SOL") &&
+                           Peso > PesoMinimo && Peso <= PesoFinal &&
+                           PesoMinimo !== 0 && PesoFinal < 10000)
+                           ? TarifaMin : null;
+
+  const PesoExcedente = (Peso > 10 && Peso <= PesoFinal) ? (Peso - 10) * TarifaExc : 0;
+
+  if ((ciaU === "JEM" || ciaU === "SOL") &&
+      (PesoMinimo !== 0 && PesoFinal < 10000) &&
+      Peso > PesoMinimo && Peso <= PesoFinal) {
+    return (MaxTarifaMinima ?? 0) + PesoExcedente + g;
+  }
+
+  if (ciaU !== "JEM" && ciaU !== "SOL" && servU !== "LATAM VELOZ" &&
+      PesoFinal > 0 && PesoCorte !== PesoMinimo && Peso <= PesoCorte) {
+    return TarifaMin;
+  }
+
+  if (ciaU !== "JEM" && ciaU !== "SOL" && servU !== "LATAM VELOZ" &&
+      PesoFinal > 0 && PesoCorte !== PesoMinimo && Peso > PesoCorte) {
+    return TarifaMin + ((Peso - PesoCorte) * TarifaExc);
+  }
+
+  if (servU === "LATAM VELOZ" && Peso > PesoMinimo && Peso <= PesoFinal) {
+    return TarifaMin + ((Peso - PesoCorte) * TarifaExc);
+  }
+
+  return null;
+}
+
+document.getElementById("btnCalc").addEventListener("click", async () => {
+  const origem  = document.getElementById("origem").value;
+  const destino = document.getElementById("destino").value;
+  const nota    = Number(document.getElementById("nota").value);
+  const peso    = Number(document.getElementById("peso").value);
+
+  if (!origem || !destino || !nota || !peso) {
+    alert("Por favor, preencha todos os campos: Origem, Destino, Valor da Nota e Peso.");
+    return;
+  }
+
+  // Mostrar loading
+  document.getElementById("loading").style.display = "block";
+  document.getElementById("tabela").style.display = "none";
+
+  try {
+    const tarifas = await fetch(`${API}/tarifas?origem=${encodeURIComponent(origem)}&destino=${encodeURIComponent(destino)}`)
+                        .then(r => r.json());
+
+    const linhas = [];
+    for (const row of tarifas) {
+      const v = valorSimulado(row, peso, nota);
+      if (v !== null && !Number.isNaN(v)) {
+        const g = gris(nota, row.CIA, row["SIGLA DESTINO"]);
+        linhas.push({
+          cia: row.CIA,
+          servico: row.SERVICO,
+          pm: Number(row.PESO_MINIMO),
+          pf: Number(row.PESO_FINAL),
+          tmin: Number(row.TARIFA_MINIMA),
+          pcorte: Number(row.PESO_CORTE),
+          texc: Number(row.TARIFA_EXCEDENTE),
+          gris: g,
+          valor: v,
+        });
+      }
+    }
+
+    const unicos = Object.values(
+      linhas.reduce((acc, l) => {
+        const key = `${l.cia}-${l.servico}`;
+        if (!acc[key] || l.valor < acc[key].valor) {
+          acc[key] = l;
+        }
+        return acc;
+      }, {})
+    );
+
+    unicos.sort((a, b) => a.valor - b.valor);
+
+    const tbody = document.querySelector("#tabela tbody");
+    tbody.innerHTML = "";
+
+    const maxValor = Math.max(...unicos.map(l => l.valor));
+    const minValor = Math.min(...unicos.map(l => l.valor));
+
+    unicos.forEach((l, idx) => {
+      const ratio = (l.valor - minValor) / (maxValor - minValor || 1);
+      const red   = Math.round(255 * ratio);
+      const green = Math.round(200 * (1 - ratio) + 55);
+      const cor   = `rgb(${red},${green},0)`;
+
+      const tr = document.createElement("tr");
+      if (idx === 0) tr.classList.add("melhor");
+
+      tr.innerHTML = `
+        <td>${l.cia}</td>
+        <td>${l.servico}</td>
+        <td class="number-cell">${formatarNumero(l.pcorte, 1)}</td>
+        <td class="number-cell">${formatarNumero(l.pm, 1)}</td>
+        <td class="number-cell">${formatarNumero(l.pf, 1)}</td>
+        <td class="number-cell"><span class="currency">R$</span> ${formatarNumero(l.tmin)}</td>
+        <td class="number-cell"><span class="currency">R$</span> ${formatarNumero(l.texc)}</td>
+        <td class="right"><span class="valor" style="background:${cor}">R$ ${formatarNumero(l.valor)}</span></td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    document.getElementById("tabela").style.display = unicos.length ? "table" : "none";
+    if (!unicos.length) alert("Nenhuma faixa atende as condições para esse peso.");
+  } catch (error) {
+    console.error("Erro ao calcular:", error);
+    alert("Ocorreu um erro ao calcular o frete. Por favor, tente novamente.");
+  } finally {
+    document.getElementById("loading").style.display = "none";
+  }
+});
+</script>
+</body>
+</html>
